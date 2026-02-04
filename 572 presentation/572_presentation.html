@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titanic Survival: Dark Mode Efficiency Study</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+/* 1. DARK MODE DESIGN SYSTEM */
+:root {
+  --primary-text: #f8fafc;
+  --secondary-text: #cbd5e1;
+  --bg-main: #0b0f19;
+  --bg-card: #1e293b;
+  --accent-blue: #3b82f6;
+  --accent-amber: #f59e0b;
+  --success: #10b981;
+  --error: #ef4444;
+  --slate: #94a3b8;
+}
+
+
+* { box-sizing: border-box; }
+p { margin: 0 0 0.7rem 0; }
+
+
+body {
+  background-color: #020617;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  padding: 2rem 0;
+  font-family: 'Inter', sans-serif;
+  color: var(--primary-text);
+}
+
+
+.slide {
+  width: 95%;
+  max-width: 1000px;
+  aspect-ratio: 16 / 9;
+  background-color: var(--bg-main);
+  border-radius: 12px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  padding: 4% 5%;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 3rem;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+
+.slide::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 6px;
+  background: linear-gradient(90deg, #1e3a8a, var(--accent-blue), var(--accent-amber));
+}
+
+
+.slide-num {
+  position: absolute;
+  bottom: 1.2rem; right: 2rem;
+  font-size: 0.75rem; color: var(--slate); font-weight: 700;
+}
+
+
+/* 2. TYPOGRAPHY */
+h1, h2, h3 { font-family: 'Poppins', sans-serif; color: var(--primary-text); margin: 0; }
+
+
+.header-box {
+  border-left: 6px solid var(--accent-blue);
+  padding-left: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+
+.header-box h2 { font-size: 1.8rem; text-transform: uppercase; letter-spacing: -0.5px; color: var(--primary-text); }
+
+
+p, li, td, th { font-size: 0.9rem; line-height: 1.5; color: var(--secondary-text); }
+.highlight { color: var(--accent-blue); font-weight: 700; }
+
+
+/* 3. GRID LAYOUTS */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+
+
+/* 4. COMPONENTS */
+.card {
+  background: var(--bg-card);
+  padding: 1.2rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  height: 100%;
+}
+.card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--accent-blue); }
+
+
+.pipeline-node {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid #334155;
+  padding: 0.5rem;
+  border-radius: 6px;
+  text-align: center;
+  flex: 1;
+  font-size: 0.75rem;
+}
+.pipeline-node h4 { font-size: 0.8rem; color: var(--accent-blue); margin-bottom: 0.2rem; }
+
+
+.bar-row { display: grid; grid-template-columns: 160px 1fr 60px; align-items: center; gap: 1rem; margin-bottom: 0.6rem; }
+.bar-track { height: 20px; background: #1e293b; border-radius: 10px; overflow: hidden; }
+.bar-fill { height: 100%; background: linear-gradient(90deg, #1e40af, var(--accent-blue)); }
+
+
+table { width: 100%; border-collapse: collapse; font-size: 0.75rem; margin-top: 1rem; }
+th { background: #1e293b; color: var(--accent-blue); padding: 10px; text-align: left; }
+td { padding: 10px; border-bottom: 1px solid #334155; }
+tr:hover { background: rgba(255,255,255,0.02); }
+
+
+.accent-callout {
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 5px solid var(--accent-blue);
+  padding: 1rem;
+  border-radius: 0 8px 8px 0;
+  margin-top: 1rem;
+}
+
+
+/* 5. SVG ENHANCEMENTS */
+.svg-container { filter: drop-shadow(0 5px 15px rgba(0,0,0,0.4)); }
+
+
+</style>
+</head>
+<body>
+
+
+<!-- SLIDE 1: TITLE SLIDE -->
+<div class="slide">
+    <div class="content-area" style="text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center;">
+        <div style="width: 320px; margin: 0 auto 1.5rem;">
+            <svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" class="svg-container">
+                <!-- Ocean -->
+                <path d="M0 160 Q 100 150 200 160 T 400 160 V 220 H 0 Z" fill="#0c4a6e" />
+                <!-- Ship Silhouette -->
+                <path d="M60 160 L 340 160 Q 360 160 350 175 L 330 200 L 70 200 Z" fill="#020617" />
+                <rect x="80" y="140" width="240" height="20" fill="#cbd5e1" />
+                <rect x="110" y="120" width="180" height="20" fill="#cbd5e1" />
+                <!-- Funnels -->
+                <g transform="skewX(-4)">
+                    <rect x="130" y="80" width="14" height="40" fill="#020617" />
+                    <rect x="130" y="80" width="14" height="10" fill="#d97706" />
+                    <rect x="170" y="80" width="14" height="40" fill="#020617" />
+                    <rect x="170" y="80" width="14" height="10" fill="#d97706" />
+                    <rect x="210" y="80" width="14" height="40" fill="#020617" />
+                    <rect x="210" y="80" width="14" height="10" fill="#d97706" />
+                </g>
+                <!-- Highlights -->
+                <circle cx="95" cy="150" r="2" fill="#fbbf24" opacity="0.6" />
+                <circle cx="125" cy="150" r="2" fill="#fbbf24" opacity="0.6" />
+            </svg>
+        </div>
+        <h1 style="font-size: 2.8rem; margin-bottom: 0.5rem;">Small Yet Performant</h1>
+        <h2 style="color: var(--accent-blue); font-size: 1.4rem; opacity: 0.9;">Efficient Machine Learning: Titanic Survival Study</h2>
+        <div style="margin-top: 2.5rem; border-top: 1px solid #334155; padding-top: 1rem;">
+            <p style="font-weight: 600; color: var(--primary-text); letter-spacing: 0.5px;">Richard Hua | Yusen Rong | Aaron Sukare</p>
+        </div>
+    </div>
+    <div class="slide-num">01</div>
+</div>
+
+<!-- SLIDE 2: PROJECT GOAL -->
+<div class="slide">
+    <div class="header-box"><h2>Titanic Facts</h2></div>
+    <div class="content-area">
+        <div class="grid-2">
+            <div>
+                <p style="font-size: 1.1rem; font-weight: 500; color: var(--primary-text);">Built: <strong>1909</strong>.</p>
+                <div class="accent-callout">
+                    <p style="margin-bottom: 0.5rem; color: var(--primary-text); font-weight: 600;">The Ship</p>
+                    <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.85rem; color: var(--secondary-text);">
+                        <li>Was the world's largest ship (882ft L, 104ft H, 92ft W)</li>
+                        <li>Known for its high opulence and luxury, its second class cabins were more luxurious than other ships' first class.</li>
+                        <li>Adjusted for inflation, it cost between $200-400M to build.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card" style="background: rgba(255,255,255,0.02); border-color: var(--accent-blue);">
+                <h3 style="color: var(--accent-amber);">The Legacy</h3>
+                <p style="color: var(--slate); font-size: 0.85rem;">Sank on April 15, 1912 (113 years ago).</p>
+                <p style="color: var(--slate); font-size: 0.85rem;">Over 1500 of the approx. 2200 people on board perished.</p>
+                <p style="color: var(--slate); font-size: 0.85rem;">Led to several international maritime safety regulations.</p>
+            </div>
+        </div>
+    </div>
+    <div class="slide-num">02</div>
+</div>
+
+<!-- SLIDE 2: PROJECT GOAL -->
+<div class="slide">
+    <div class="header-box"><h2>Project Objective</h2></div>
+    <div class="content-area">
+        <div class="grid-2">
+            <div>
+                <p style="font-size: 1.1rem; font-weight: 500; color: var(--primary-text);">Goal: Develop a <strong>Parsimonious Model</strong>.</p>
+                <div class="accent-callout">
+                    <p style="margin-bottom: 0.5rem; color: var(--primary-text); font-weight: 600;">Core Requirements:</p>
+                    <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.85rem; color: var(--secondary-text);">
+                        <li>Balance high predictive power with model simplicity.</li>
+                        <li>Empirical feature reduction via contribution analysis.</li>
+                        <li>Strict reproducibility via <strong>Seed 42</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card" style="background: rgba(255,255,255,0.02); border-color: var(--accent-blue);">
+                <h3 style="color: var(--accent-amber);">Efficiency Point</h3>
+                <p style="color: var(--slate); font-size: 0.85rem;">Emphasis is placed on an efficient model that maintains performance while using significantly fewer features (e.g., Strategy C with 14 features).</p>
+            </div>
+        </div>
+    </div>
+    <div class="slide-num">02</div>
+</div>
+
+
+<!-- SLIDE 3: ANALYSIS PIPELINE -->
+<div class="slide">
+    <div class="header-box"><h2>Project Pipeline</h2></div>
+    <div class="content-area">
+        <div style="display: flex; gap: 0.4rem; align-items: center; justify-content: space-between;">
+            <div class="pipeline-node"><h4>Split</h4><p>Seed 42<br>75/25 Stratified</p></div>
+            <i class="fa-solid fa-chevron-right" style="color: #334155;"></i>
+            <div class="pipeline-node"><h4>EDA</h4><p>Skewness &<br>Log1p Check</p></div>
+            <i class="fa-solid fa-chevron-right" style="color: #334155;"></i>
+            <div class="pipeline-node"><h4>Pre-Process</h4><p>Median Impute<br>OHE Encoding</p></div>
+            <i class="fa-solid fa-chevron-right" style="color: #334155;"></i>
+            <div class="pipeline-node" style="border-color: var(--accent-blue);"><h4>Tuning</h4><p>5-Fold CV<br>GridSearch</p></div>
+            <i class="fa-solid fa-chevron-right" style="color: #334155;"></i>
+            <div class="pipeline-node" style="background: var(--accent-blue); border: none;"><h4 style="color: white;">Result</h4><p style="color: #fff;">Efficient Model<br>(14 Features)</p></div>
+        </div>
+        <div class="accent-callout" style="margin-top: 2rem; text-align: center; border: none; background: rgba(255,255,255,0.03);">
+            <p style="font-size: 0.85rem; margin: 0; font-style: italic; color: var(--slate);">"Data-driven feature selection ensures parsimony without sacrificing accuracy."</p>
+        </div>
+    </div>
+    <div class="slide-num">03</div>
+</div>
+
+
+<!-- SLIDE 4: METHODOLOGY: DATA HANDLING -->
+<div class="slide">
+    <div class="header-box"><h2>Methodology: Preprocessing</h2></div>
+    <div class="content-area">
+        <div class="grid-2">
+            <div style="text-align: center;">
+                <svg viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg" style="width: 200px;">
+                    <path d="M40 20 L 160 20 L 130 140 L 70 140 Z" fill="rgba(255,255,255,0.05)" stroke="#334155" stroke-width="2" />
+                    <rect x="55" y="40" width="90" height="12" rx="4" fill="#1e3a8a" opacity="0.6" />
+                    <rect x="75" y="80" width="50" height="12" rx="4" fill="#3b82f6" opacity="0.6" />
+                    <rect x="92" y="120" width="16" height="12" rx="4" fill="#f59e0b" />
+                    <path d="M100 145 L 100 165 L 105 160 M 100 165 L 95 160" fill="none" stroke="#f59e0b" stroke-width="3" />
+                </svg>
+            </div>
+            <div>
+                <p>Data handling choices were justified by <strong>Exploratory Data Analysis</strong>:</p>
+                <ul style="padding-left: 1.2rem; font-size: 0.85rem;">
+                    <li><strong>Skewness:</strong> Right-skewed <strong>Fare</strong> normalized via <strong>log1p transformation</strong>.</li>
+                    <li><strong>Missingness:</strong> Median imputation (Numeric) and "Missing" labels (Categorical).</li>
+                    <li><strong>Consistency:</strong> Fixed Seed <code>42</code> applied to all randomized operations for strict reproducibility.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="slide-num">04</div>
+</div>
+
+
+<!-- SLIDE 5: k-NN RESULTS -->
+<div class="slide">
+    <div class="header-box"><h2>Model 1: k-Nearest Neighbors</h2></div>
+    <div class="content-area">
+        <div class="grid-2">
+            <div>
+                <p>k-NN achieved high predictive performance through scaling and PCA-based dimensionality reduction.</p>
+                <div class="accent-callout" style="background: rgba(16, 185, 129, 0.1); border-left-color: var(--success);">
+                    <p style="margin: 0; font-weight: 700; color: var(--success);">Performance Metrics:</p>
+                    <p style="margin: 0;">Accuracy (Test): <strong>80.72%</strong></p>
+                    <p style="margin: 0;">ROC-AUC: <strong>0.8208</strong></p>
+                </div>
+                <img src="image.png" alt="Description of the image">
+
+                <p style="font-size: 0.8rem; margin-top: 1rem; color: var(--slate);">Used <strong>PCA (95% variance)</strong> to handle feature explosion from OHE.</p>
+            </div>
+            <div style="text-align: center;">
+                <svg viewBox="0 0 100 100" style="width: 140px;">
+                    <circle cx="30" cy="30" r="4" fill="#3b82f6" />
+                    <circle cx="20" cy="50" r="4" fill="#3b82f6" />
+                    <circle cx="45" cy="40" r="4" fill="#3b82f6" />
+                    <circle cx="70" cy="70" r="4" fill="#94a3b8" opacity="0.3" />
+                    <circle cx="50" cy="60" r="4" fill="#f59e0b" />
+                    <circle cx="50" cy="60" r="30" fill="none" stroke="#f59e0b" stroke-dasharray="2" />
+                </svg>
+            </div>
+        </div>
+    </div>
+    <div class="slide-num">05</div>
+</div>
+
+
+<!-- SLIDE 6: RF COMPLEXITY STUDY -->
+<div class="slide">
+    <div class="header-box"><h2>Random Forest Complexity Matrix</h2></div>
+    <div class="content-area">
+        <div class="grid-3">
+            <div class="card">
+                <h3>Strategy A: Large</h3>
+                <p style="font-size: 0.75rem; color: var(--slate);">Maximum info retention. <strong>1,378 Features</strong>. Accuracy: 80.27%.</p>
+            </div>
+            <div class="card" style="background: rgba(255,255,255,0.01);">
+                <h3 style="color: var(--secondary-text);">Strategy B: Eng.</h3>
+                <p style="font-size: 0.75rem; color: var(--slate);">Domain-motivated Interactions. 75 Features. Test Accuracy: 78.03%.</p>
+            </div>
+            <div class="card" style="border-color: var(--accent-amber); background: rgba(245, 158, 11, 0.05);">
+                <h3 style="color: var(--accent-amber);">Strategy C: Select</h3>
+                <p style="font-size: 0.75rem; color: var(--accent-amber);"><strong>Efficiency Focus.</strong> <strong>14 Features</strong>. Accuracy: 79.82%.</p>
+            </div>
+        </div>
+    </div>
+    <div class="slide-num">06</div>
+    <image src="rf.png">
+</div>
+
+
+<!-- SLIDE 7: THE EFFICIENCY RATIO -->
+<div class="slide">
+    <div class="header-box"><h2>The Parsimony Frontier</h2></div>
+    <div class="content-area">
+        <div class="grid-2">
+            <div style="text-align: center;">
+                <div style="font-size: 5rem; font-weight: 800; color: var(--accent-blue); line-height: 1;">14</div>
+                <p style="font-weight: 600; color: var(--primary-text);">Features (Selection)</p>
+                <p style="font-size: 0.8rem; color: var(--slate);">vs. 1,378 (Large Model)</p>
+            </div>
+            <div>
+                <div class="accent-callout" style="background: rgba(255,255,255,0.02); border-left-color: var(--accent-amber);">
+                    <p style="font-size: 0.9rem; margin: 0; font-style: italic; color: var(--primary-text);">
+                        "Dimensional reduction: Trading 1,364 extra features for a 0.45% accuracy gain is inefficient. Strategy C is the strategic choice."
+                    </p>
+                </div>
+                <p style="font-size: 0.8rem; margin-top: 1rem; color: var(--slate);">Pruning concentrates the model on strong predictors while ignoring One-Hot noise.</p>
+            </div>
+        </div>
+    </div>
+    <div class="slide-num">07</div>
+</div>
+
+
+<!-- SLIDE 8: DISCUSSION: GENERALIZATION GAP -->
+<div class="slide">
+    <div class="header-box"><h2>Discussion: Generalization Gap</h2></div>
+    <div class="content-area">
+        <div class="grid-2">
+            <div style="text-align: center;">
+                <svg viewBox="0 0 200 150" style="width: 200px;">
+                    <rect x="20" y="20" width="160" height="40" rx="4" fill="rgba(255,255,255,0.02)" stroke="#334155" />
+                    <text x="100" y="45" text-anchor="middle" font-size="10" fill="#cbd5e1">CV Accuracy: 83.38%</text>
+                    <path d="M100 60 L 100 90 L 95 85 M 100 90 L 105 85" fill="none" stroke="#ef4444" stroke-width="2" />
+                    <rect x="20" y="100" width="160" height="40" rx="4" fill="rgba(239, 68, 68, 0.05)" stroke="#ef4444" />
+                    <text x="100" y="125" text-anchor="middle" font-size="10" fill="#ef4444" font-weight="bold">Test Accuracy: 78.03%</text>
+                </svg>
+            </div>
+            <div>
+                <p>Why <strong>Strategy B</strong> (Engineering) underperformed:</p>
+                <ul style="font-size: 0.8rem; color: var(--secondary-text);">
+                    <li><strong>Discretization Loss:</strong> Binning Age/Fare discarded detail trees use natively.</li>
+                    <li><strong>Redundancy:</strong> New interaction terms duplicated existing augmented signals.</li>
+                    <li><strong>Instability:</strong> Manual features overfitted to partition noise in cross-validation.</li>
+                </ul>
+                <img src="rf_2.png", width="400">
+            </div>
+        </div>
+    </div>
+    <div class="slide-num">08</div>
+</div>
+
+
+<!-- SLIDE 9: RESULTS MATRIX -->
+<div class="slide">
+    <div class="header-box"><h2>Performance Comparison Matrix</h2></div>
+    <div class="content-area">
+        <table>
+            <thead>
+                <tr>
+                    <th>Strategy</th>
+                    <th>Test Accuracy</th>
+                    <th>ROC-AUC</th>
+                    <th>Features</th>
+                    <th>Project Verdict</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>k-NN (PCA)</strong></td>
+                    <td style="color: var(--accent-blue); font-weight:700;">80.72%</td>
+                    <td>0.8208</td>
+                    <td>Reduced</td>
+                    <td>Max Predictive Power</td>
+                </tr>
+                <tr>
+                    <td><strong>RF: Strategy A</strong></td>
+                    <td>80.27%</td>
+                    <td>-</td>
+                    <td>1,378</td>
+                    <td>Inefficient Info</td>
+                </tr>
+                <tr>
+                    <td><strong>RF: Strategy C</strong></td>
+                    <td style="color: var(--accent-blue); font-weight:700;">79.82%</td>
+                    <td>-</td>
+                    <td><strong>14</strong></td>
+                    <td><strong>OPTIMAL CHOICE</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Decision Tree</strong></td>
+                    <td>77.58%</td>
+                    <td>-</td>
+                    <td>75</td>
+                    <td>High Variance</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="slide-num">09</div>
+</div>
+
+
+<!-- SLIDE 10: ACCURACY BENCHMARKS -->
+<div class="slide">
+    <div class="header-box"><h2>Benchmark Visualizations</h2></div>
+    <div class="content-area">
+        <div class="bar-chart">
+            <div class="bar-row">
+                <div class="bar-label">k-NN (PCA)</div>
+                <div class="bar-track"><div class="bar-fill" style="width: 80.72%;"></div></div>
+                <div class="bar-val">80.7%</div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label">RF: Large Model</div>
+                <div class="bar-track"><div class="bar-fill" style="width: 80.27%;"></div></div>
+                <div class="bar-val">80.2%</div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label">RF: Selection (C)</div>
+                <div class="bar-track"><div class="bar-fill" style="width: 79.82%; background: var(--accent-amber);"></div></div>
+                <div class="bar-val">79.8%</div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label">Decision Tree</div>
+                <div class="bar-track"><div class="bar-fill" style="width: 77.58%; background: var(--slate);"></div></div>
+                <div class="bar-val">77.5%</div>
+            </div>
+        </div>
+        <div class="accent-callout" style="text-align: center; margin-top: 1.5rem; background: rgba(255,255,255,0.02); border: none;">
+            <p style="font-size: 0.85rem; margin: 0; font-weight: 600; color: var(--accent-blue);">Efficiency Goal Met: Strategy C delivers a "Small yet Performant" model.</p>
+        </div>
+    </div>
+    <div class="slide-num">10</div>
+</div>
+
+
+<!-- SLIDE 11: FINAL VERDICT -->
+<div class="slide">
+    <div class="header-box"><h2>Conclusion: Efficiency Verified</h2></div>
+    <div class="content-area" style="text-align: center;">
+        <div style="width: 100px; margin: 0 auto 1.5rem;">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="45" fill="#064e3b" />
+                <path d="M30 50 L 45 65 L 70 35" stroke="#10b981" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </div>
+        <p style="font-size: 1.3rem; font-weight: 700; color: var(--primary-text);">The <strong>CorrRFSelect</strong> (Strategy C) is the project winner.</p>
+        <p style="max-width: 800px; margin: 0 auto; color: var(--secondary-text); font-size: 0.9rem;">
+            Our project confirms that parsimony and effectiveness are not mutually exclusive. By using just 14 features, we achieved production-ready performance with minimal complexity and maximum interpretability.
+        </p>
+    </div>
+    <div class="slide-num">11</div>
+</div>
+
+
+<!-- SLIDE 12: Q&A -->
+<div class="slide" style="justify-content: center; text-align: center;">
+    <h2 style="font-size: 4rem; color: var(--accent-blue); line-height: 1;">?</h2>
+    <h2 style="font-size: 1.5rem; margin-top: 1rem;">Questions & Discussion</h2>
+    <div style="margin-top: 5rem; font-weight: 500; font-size: 1.1rem; color: var(--slate);">
+        <p>Richard Hua | Yusen Rong | Aaron Sukare</p>
+        <p style="font-size: 0.85rem; margin-top: 0.5rem;">Supervised Machine Learning Final Study | Feb 2026</p>
+    </div>
+    <div class="slide-num">12</div>
+</div>
+
+
+</body>
+</html>
+
